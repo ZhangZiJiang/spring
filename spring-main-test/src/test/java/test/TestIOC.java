@@ -19,8 +19,9 @@ public class TestIOC {
 //
 //		System.out.println(student.toString());
 
-		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
-		context.start();
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+		context.refresh();
+		context.close();
 
 
 //		StudentDTO student = (StudentDTO) context.getBean("studentDTO");
