@@ -106,6 +106,8 @@ class ConfigurationClassEnhancer {
 			}
 			return configClass;
 		}
+
+		//cglib 代理类
 		Class<?> enhancedClass = createClass(newEnhancer(configClass, classLoader));
 		if (logger.isTraceEnabled()) {
 			logger.trace(String.format("Successfully enhanced %s; enhanced class name is: %s",

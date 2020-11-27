@@ -1,0 +1,23 @@
+package com.zijiang.fight.config;
+
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+
+/**
+ * @program spring
+ * @description:
+ * @author: zhangbo
+ * @create: 2020/10/26 14:39
+ */
+@ComponentScan(basePackages={"com.zijiang.fight"})
+//@Configuration
+public class AppConfig {
+
+
+
+//	@Bean
+//	public StudentDTO student(){
+//		StudentDTO studentDTO = new StudentDTO();
+//		return studentDTO;
+//	}
+}

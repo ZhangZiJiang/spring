@@ -90,14 +90,21 @@ abstract class ConfigurationClassUtils {
 		}
 
 		AnnotationMetadata metadata;
+		//判断是不是注解类 AnnotatedBeanDefinition，还有可能是RootBeanDefinition等等spring自己的bean，
+		// 这里筛选出来是spring自己的还是开发者自己定义的
+		// 筛选出来之后，根据不同的bd拿出不同的 Metadata
 		if (beanDef instanceof AnnotatedBeanDefinition &&
 				className.equals(((AnnotatedBeanDefinition) beanDef).getMetadata().getClassName())) {
 			// Can reuse the pre-parsed metadata from the given BeanDefinition...
 			metadata = ((AnnotatedBeanDefinition) beanDef).getMetadata();
 		}
+		//判断是不是 AbstractBeanDefinition类
+		// 目的是拿出 metadata（类的信息）
 		else if (beanDef instanceof AbstractBeanDefinition && ((AbstractBeanDefinition) beanDef).hasBeanClass()) {
 			// Check already loaded Class if present...
 			// since we possibly can't even load the class file for this Class.
+			// 检查已经加载的Class（如果存在，如果存在我们就没办法加载了）
+			// 因为我们甚至可能无法加载该Class的class文件。
 			Class<?> beanClass = ((AbstractBeanDefinition) beanDef).getBeanClass();
 			if (BeanFactoryPostProcessor.class.isAssignableFrom(beanClass) ||
 					BeanPostProcessor.class.isAssignableFrom(beanClass) ||
@@ -122,9 +129,15 @@ abstract class ConfigurationClassUtils {
 		}
 
 		Map<String, Object> config = metadata.getAnnotationAttributes(Configuration.class.getName());
+		//做了个标志：
+		//如果有@Configuration注解 则标志为 CONFIGURATION_CLASS_FULL
 		if (config != null && !Boolean.FALSE.equals(config.get("proxyBeanMethods"))) {
 			beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_FULL);
 		}
+		//判断是不是加了@Configuration，是的话继续往下走，其实走到这已经很明确了，
+		// spring就是要找配置类，然后将配置类的bean实例化出来
+		// 如果没有@Configuration注解 则标志为 CONFIGURATION_CLASS_LITE
+		// 目的是后面会解析这些存在@Confiuration类
 		else if (config != null || isConfigurationCandidate(metadata)) {
 			beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_LITE);
 		}
@@ -150,11 +163,13 @@ abstract class ConfigurationClassUtils {
 	 */
 	public static boolean isConfigurationCandidate(AnnotationMetadata metadata) {
 		// Do not consider an interface or an annotation...
+		//如果是接口，不考虑，直接跳过
 		if (metadata.isInterface()) {
 			return false;
 		}
 
 		// Any of the typical annotations found?
+		// 是不是典型的注解，等等校验操作
 		for (String indicator : candidateIndicators) {
 			if (metadata.isAnnotated(indicator)) {
 				return true;
@@ -162,6 +177,7 @@ abstract class ConfigurationClassUtils {
 		}
 
 		// Finally, let's look for @Bean methods...
+		// 最后，就是再次找加了@bean注解的方法了
 		try {
 			return metadata.hasAnnotatedMethods(Bean.class.getName());
 		}

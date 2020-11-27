@@ -58,6 +58,9 @@ public class AnnotatedBeanDefinitionReader {
 
 
 	/**
+	 *
+	 * 是一个读取注解的Bean定义读取器
+	 *
 	 * Create a new {@code AnnotatedBeanDefinitionReader} for the given registry.
 	 * <p>If the registry is {@link EnvironmentCapable}, e.g. is an {@code ApplicationContext},
 	 * the {@link Environment} will be inherited, otherwise a new
@@ -250,17 +253,26 @@ public class AnnotatedBeanDefinitionReader {
 			@Nullable Class<? extends Annotation>[] qualifiers, @Nullable Supplier<T> supplier,
 			@Nullable BeanDefinitionCustomizer[] customizers) {
 
+		/**
+		 * Metadata元数据就是判断这个类，有没有scope呀等等。用来解析一个bean的，然后再将这些信息告诉BeanDefinition
+		 */
+		//初始化AnnotatedGenericBeanDefinition，并且对注释做了解析
 		AnnotatedGenericBeanDefinition abd = new AnnotatedGenericBeanDefinition(beanClass);
+		//判断有没有注解
+		//应该是判断这个类的元数据是不是配置类或者Component类型的类。
 		if (this.conditionEvaluator.shouldSkip(abd.getMetadata())) {
 			return;
 		}
 
 		abd.setInstanceSupplier(supplier);
+		//得到类的作用域
 		ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(abd);
+		//并添加到abd中
 		abd.setScope(scopeMetadata.getScopeName());
 		String beanName = (name != null ? name : this.beanNameGenerator.generateBeanName(abd, this.registry));
 
 		AnnotationConfigUtils.processCommonDefinitionAnnotations(abd);
+
 		if (qualifiers != null) {
 			for (Class<? extends Annotation> qualifier : qualifiers) {
 				if (Primary.class == qualifier) {
@@ -274,14 +286,28 @@ public class AnnotatedBeanDefinitionReader {
 				}
 			}
 		}
+
 		if (customizers != null) {
 			for (BeanDefinitionCustomizer customizer : customizers) {
 				customizer.customize(abd);
 			}
 		}
 
+		//
+		/**
+		 * BeanDefinitionHolder也是一种数据结构
+		 * 这里将 AnnotatedGenericBeanDefinition 转化为 BeanDefinitionHolder 类型，只不过在
+		 *  AnnotatedGenericBeanDefinition 类型里面加了 beanName 和 aliases 两个字段。
+		 */
 		BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(abd, beanName);
+
 		definitionHolder = AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);
+
+		/**
+		 * 把上述的这个数据结构注册给这个registry
+		 * registry就是AnnotationConfigApplicationContext
+		 *
+		 */
 		BeanDefinitionReaderUtils.registerBeanDefinition(definitionHolder, this.registry);
 	}
 

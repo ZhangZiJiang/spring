@@ -32,7 +32,7 @@ import org.springframework.lang.Nullable;
 /**
  * Simple utility class for working with the reflection API and handling
  * reflection exceptions.
- *
+ * 利用反射，将配置文件中的bean进行实例化
  * <p>Only intended for internal use.
  *
  * @author Juergen Hoeller

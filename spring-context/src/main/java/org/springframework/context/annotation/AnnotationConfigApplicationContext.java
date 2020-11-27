@@ -78,6 +78,12 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	public AnnotationConfigApplicationContext(DefaultListableBeanFactory beanFactory) {
 		super(beanFactory);
 		this.reader = new AnnotatedBeanDefinitionReader(this);
+
+		/**
+		 * 可以用来扫描包或者类，进而转化成bd
+		 * 但实际上扫描包不是这个对象完成的
+		 * 是给scan() 方法用的
+		 */
 		this.scanner = new ClassPathBeanDefinitionScanner(this);
 	}
 

@@ -53,9 +53,14 @@ public class SimpleAliasRegistry implements AliasRegistry {
 	public void registerAlias(String name, String alias) {
 		Assert.hasText(name, "'name' must not be empty");
 		Assert.hasText(alias, "'alias' must not be empty");
+		/*
+		 * 1，因为是全局变量，使用ConcurrentHashMap是所有时刻都要保证线程安全
+		 * 2,同时又使用synchronized是保证在执行这段代码时，只有此线程可以来对aliasMap进行修改
+		 */
 		synchronized (this.aliasMap) {
 			if (alias.equals(name)) {
 				this.aliasMap.remove(alias);
+				//如果alias不允许被覆盖则抛异常。
 				if (logger.isDebugEnabled()) {
 					logger.debug("Alias definition '" + alias + "' ignored since it points to same name");
 				}
@@ -76,6 +81,7 @@ public class SimpleAliasRegistry implements AliasRegistry {
 								registeredName + "' with new target name '" + name + "'");
 					}
 				}
+				//当A->B存在时，若再出现A->C->B时候则会抛出异常
 				checkForAliasCircle(name, alias);
 				this.aliasMap.put(alias, name);
 				if (logger.isTraceEnabled()) {
