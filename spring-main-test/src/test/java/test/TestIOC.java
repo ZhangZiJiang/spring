@@ -1,6 +1,8 @@
 package test;
 
 import com.zijiang.fight.config.AppConfig;
+import com.zijiang.fight.dto.StudentDTO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 /**
@@ -11,6 +13,8 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
  */
 public class TestIOC {
 
+	@Autowired
+	private StudentDTO studentDTO;
 
 	public static void main(String[] args) {
 //		ApplicationContext applicationContext = new ClassPathXmlApplicationContext("beans.xml");
@@ -19,9 +23,13 @@ public class TestIOC {
 //
 //		System.out.println(student.toString());
 
-		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-		context.refresh();
-		context.close();
+
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+		StudentDTO studentDTO1 = (StudentDTO) context.getBean("studentDTO");
+		studentDTO1.setName("2323");
+		System.out.println("studentDTO1: " + studentDTO1);
+		StudentDTO studentDTO2 = (StudentDTO) context.getBean("studentDTO");
+		System.out.println("studentDTO2: " + studentDTO2);
 
 
 //		StudentDTO student = (StudentDTO) context.getBean("studentDTO");

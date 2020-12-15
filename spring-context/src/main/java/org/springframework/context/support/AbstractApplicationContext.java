@@ -36,6 +36,7 @@ import org.springframework.beans.CachedIntrospectionResults;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -580,6 +581,9 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				invokeBeanFactoryPostProcessors(beanFactory);
 
 				// Register bean processors that intercept bean creation.
+				// 注册 beanPostProcessors
+				// 为什么要注册，其实到目前为止，我们的 beanPostProcessors 是有上百个
+				// 但是我们的 Spring 不可能都去执行，或者不需要执行全部的，所以我们在这个方法里进行筛选，执行哪个
 				registerBeanPostProcessors(beanFactory);
 				beanPostProcess.end();
 
@@ -785,6 +789,14 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		 * 所以想要得到必须调用 AnnotationConfigApplicationContext.addBeanFactoryProcessor() 进行添加
 		 *
 		 */
+//		addBeanFactoryPostProcessor(new BeanFactoryPostProcessor() {
+//			@Override
+//			public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+//				AnnotatedBeanDefinition annotatedBeanDefinition = (AnnotatedBeanDefinition)beanFactory.getBeanDefinition("studentDTO");
+//
+//				annotatedBeanDefinition.setScope("prototype");
+//			}
+//		});
 		PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors(beanFactory, getBeanFactoryPostProcessors());
 
 		// Detect a LoadTimeWeaver and prepare for weaving, if found in the meantime

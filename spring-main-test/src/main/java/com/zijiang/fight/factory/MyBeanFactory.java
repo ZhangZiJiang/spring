@@ -18,6 +18,5 @@ public class MyBeanFactory implements BeanFactoryPostProcessor {
 	@Override
 	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
 		AnnotatedBeanDefinition annotatedBeanDefinition = (AnnotatedBeanDefinition)beanFactory.getBeanDefinition("studentDTO");
-		annotatedBeanDefinition.setScope("prototype");
 	}
 }

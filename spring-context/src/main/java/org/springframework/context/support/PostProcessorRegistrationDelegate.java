@@ -239,12 +239,21 @@ final class PostProcessorRegistrationDelegate {
 	public static void registerBeanPostProcessors(
 			ConfigurableListableBeanFactory beanFactory, AbstractApplicationContext applicationContext) {
 
+		// 到目前为止，已经有三个后置处理器注册进来了
+		/**
+		 * org.springframework.context.annotation.AnnotationConfigApplicationContext
+		 * org.springframework.context.annotation.AnnotationConfigApplicationContext
+		 * org.springframework.context.annotation.ConfigurationClassPostProcessor$ImportAwareBeanPostProcessor 在cglib增强的时候注入进来的。
+		 */
 		String[] postProcessorNames = beanFactory.getBeanNamesForType(BeanPostProcessor.class, true, false);
 
 		// Register BeanPostProcessorChecker that logs an info message when
 		// a bean is created during BeanPostProcessor instantiation, i.e. when
 		// a bean is not eligible for getting processed by all BeanPostProcessors.
 		int beanProcessorTargetCount = beanFactory.getBeanPostProcessorCount() + 1 + postProcessorNames.length;
+		/**
+		 * 检查是否有执行过的后置处理器，看看
+		 */
 		beanFactory.addBeanPostProcessor(new BeanPostProcessorChecker(beanFactory, beanProcessorTargetCount));
 
 		// Separate between BeanPostProcessors that implement PriorityOrdered,

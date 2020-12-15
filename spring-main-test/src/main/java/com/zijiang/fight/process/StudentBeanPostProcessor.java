@@ -29,6 +29,6 @@ public class StudentBeanPostProcessor implements BeanPostProcessor, PriorityOrde
 
 	@Override
 	public int getOrder() {
-		return 101;
+		return 81;
 	}
 }

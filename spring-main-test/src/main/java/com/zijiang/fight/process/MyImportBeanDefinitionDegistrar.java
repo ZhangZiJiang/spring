@@ -31,4 +31,5 @@ public class MyImportBeanDefinitionDegistrar implements ImportBeanDefinitionRegi
 		beanDefinition.setBeanClass(MyBeanFactory.class);
 		registry.registerBeanDefinition("studentMapper", beanDefinition);
 	}
+
 }

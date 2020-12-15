@@ -586,6 +586,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			//根据指定bean使用对应的策略创建新的实例。如：工厂方法，构造函数自动注入，简单初始化
 			instanceWrapper = createBeanInstance(beanName, mbd, args);
 		}
+		//这里是还是原生对象，这步之后就是代理对象了
 		Object bean = instanceWrapper.getWrappedInstance();
 		Class<?> beanType = instanceWrapper.getWrappedClass();
 		if (beanType != NullBean.class) {
@@ -631,13 +632,15 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		// Initialize the bean instance.
+		// 初始化我们的bean
 		Object exposedObject = bean;
 		try {
 			/**
 			 * 对 bean 进行填充，将各个属性值注入，其中可能存在依赖于其他bean的属性，则会递归初始依赖bean
 			 */
 			populateBean(beanName, mbd, instanceWrapper);
-			//调用初始化方法，比如init-method
+			//调用初始化方法，比如init-method======这个注解暂时理解不了
+			// 这步我们的真实对象变成了代理对象
 			exposedObject = initializeBean(beanName, exposedObject, mbd);
 		}
 		catch (Throwable ex) {
@@ -1257,6 +1260,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		// No special handling: simply use no-arg constructor.
+		//以上判断了这个类的构造函数是什么样子的，如果是默认构造器那么久在这里实例化
 		return instantiateBean(beanName, mbd);
 	}
 
@@ -1845,7 +1849,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			//调用我们bean的后置处理器的PostProcessorsBeforeInitialization方法
 			/**
 			 * 前置处理器
-			 *
+			 * 这里执行所有 beanPostProcess 类中的 before 方法
 			 */
 			wrappedBean = applyBeanPostProcessorsBeforeInitialization(wrappedBean, beanName);
 		}
@@ -1865,6 +1869,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			 * 当把所有的值都付给bean之后
 			 * 他会去再次修改bean
 			 * 后置处理器
+			 *
+			 * 也就是这里执行所有 beanPostProcess 类中的 after 方法
+			 * 并在这里将真实对象转化为了代理对象
 			 */
 			wrappedBean = applyBeanPostProcessorsAfterInitialization(wrappedBean, beanName);
 		}
