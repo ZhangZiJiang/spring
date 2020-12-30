@@ -175,9 +175,15 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	private SecurityContextProvider securityContextProvider;
 
 	/** Map from bean name to merged RootBeanDefinition. */
+	/**
+	 * 从bean名称映射到合并的RootBeanDefinition。
+	 */
 	private final Map<String, RootBeanDefinition> mergedBeanDefinitions = new ConcurrentHashMap<>(256);
 
 	/** Names of beans that have already been created at least once. */
+	/**
+	 * 至少已创建一次的bean的名称
+	 */
 	private final Set<String> alreadyCreated = Collections.newSetFromMap(new ConcurrentHashMap<>(256));
 
 	/** Names of beans that are currently in creation. */
@@ -297,7 +303,13 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			/*
 			 * 只有在单例情况下才会尝试解决循环依赖，原型模式下，如果存在A中有B的属性，B中有A的属性，那么当依赖注入的时候，
 			 * 就会产生当A还未创建完的时候，因为对于B的创建再次返回创建A，造成循环依赖，也就是下面情况
+			 * 当一个类是原型，另一个单例引用，依赖它 的时候，就会报这里的错误
+			 *
+			 *
+			 * 理解： 在原型情况下：如果存在A中有B的属性，B中有A的属性，这里没有问题，
+			 * 接着，当A正在创建过程中还未完成的时候，B创建时，因为原型在创建A，A中再创建B，B在创建A
 			 */
+			//TODO 还没有试验过，有机会试验一下
 			if (isPrototypeCurrentlyInCreation(beanName)) {
 				throw new BeanCurrentlyInCreationException(beanName);
 			}
@@ -342,7 +354,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					beanCreation.tag("beanType", requiredType::toString);
 				}
 				/**
-				 * 将存储XML配置文件的GernericBeanDefinition转换为RootBeanDefinition，如果
+				 * 将存储XML配置文件的GernericBeanDefinition转换为RootBeanDefinition，如果指定
+				 * BeanName是子Bean的话同时会合并父类相关属性
 				 */
 				RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
 				//TODO 检查合并的 bean 定义
@@ -356,6 +369,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 							throw new BeanCreationException(mbd.getResourceDescription(), beanName,
 									"Circular depends-on relationship between '" + beanName + "' and '" + dep + "'");
 						}
+						//缓存依赖调用
 						registerDependentBean(dep, beanName);
 						try {
 							getBean(dep);

@@ -141,7 +141,12 @@ class ConstructorResolver {
 		else {
 			Object[] argsToResolve = null;
 			synchronized (mbd.constructorArgumentLock) {
-				// 优先尝试从缓存中获取,spring对参数的解析过程是比较复杂也耗时的,所以这里先尝试从缓存中获取已经解析过的构造函数参数
+				// 优先尝试从缓存中获取,spring对参数的解析过程是比较复杂也耗时的,
+				// 所以这里先尝试从缓存中获取已经解析过的构造函数参数
+				/**
+				 * 是什么时候放入的缓存呢？
+				 * FactoryMethod 方法 或者前面其他 constructor 放入的
+				 */
 				constructorToUse = (Constructor<?>) mbd.resolvedConstructorOrFactoryMethod;
 				//如果构造方法和参数都不为Null
 				if (constructorToUse != null && mbd.constructorArgumentsResolved) {
@@ -157,6 +162,9 @@ class ConstructorResolver {
 			// 缓存中存在,则解析存储在 BeanDefinition 中的参数
 			// 如给定方法的构造函数 A(int ,int )，则通过此方法后就会把配置文件中的("1","1")转换为 (1,1)
 			// 缓存中的值可能是原始值也有可能是最终值
+			/**
+			 * 参数解析器
+			 */
 			if (argsToResolve != null) {
 				argsToUse = resolvePreparedArguments(beanName, mbd, bw, constructorToUse, argsToResolve, true);
 			}
@@ -197,6 +205,9 @@ class ConstructorResolver {
 			}
 
 			// Need to resolve the constructor.
+			/**
+			 * 判断构造方法是否为空，判断是否根据构造方法自动注入
+			 */
 			boolean autowiring = (chosenCtors != null ||
 					mbd.getResolvedAutowireMode() == AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR);
 			ConstructorArgumentValues resolvedValues = null;
@@ -208,13 +219,25 @@ class ConstructorResolver {
 			}
 			else {
 				// 从 BeanDefinition 中获取构造参数，也就是从配置文件中提取构造参数
+				/**
+				 * ConstructorArgumentValues
+				 * 中有两个属性，一个map 和 list map是存放有序的参数
+				 * <1,obj>, <2,obj>
+				 * <constructor-arg index="0" value="str0" ></constructor-arg>
+				 * <constructor-arg index="1" value="str1" ></constructor-arg>
+				 * list 存放无须的构造函数的参数
+				 */
 				ConstructorArgumentValues cargs = mbd.getConstructorArgumentValues();
 				resolvedValues = new ConstructorArgumentValues();
 				// 能解析到的参数个数
 				minNrOfArgs = resolveConstructorArguments(beanName, mbd, bw, cargs, resolvedValues);
 			}
 
-			// 对所有构造函数进行排序,public 且 参数最多的构造函数会排在第一位
+			// 对所有构造函数进行排序,
+			// public 且 参数最多的构造函数会排在第一位
+			/**
+			 * 为什么要排序
+			 */
 			AutowireUtils.sortConstructors(candidates);
 			int minTypeDiffWeight = Integer.MAX_VALUE;
 			//模棱两可的构造函数集合
@@ -227,6 +250,9 @@ class ConstructorResolver {
 
 				// 如果已经找到选用的构造函数或者需要的参数个数小于当前的构造函数参数个数，则终止。
 				// 因为，已经按照参数个数降序排列了
+				/**
+				 * 简单来说选择符合条件的构造方法，如果都符合 选择最靠前的。
+				 */
 				if (constructorToUse != null && argsToUse != null && argsToUse.length > parameterCount) {
 					// Already found greedy constructor that can be satisfied ->
 					// do not look any further, there are only less greedy constructors left.
@@ -281,6 +307,9 @@ class ConstructorResolver {
 				// isLenientConstructorResolution 判断解析构造函数的时候是否以宽松模式还是严格模式（默认宽松）
 				// 严格模式：解析构造函数时，必须所有的都需要匹配，否则抛出异常
 				// 宽松模式：使用具有"最接近的模式"进行匹配
+				/**
+				 * 差异值 采用的是 编辑距离算法
+				 */
 				int typeDiffWeight = (mbd.isLenientConstructorResolution() ?
 						argsHolder.getTypeDifferenceWeight(paramTypes) : argsHolder.getAssignabilityWeight(paramTypes));
 				// Choose this constructor if it represents the closest match.
@@ -337,7 +366,7 @@ class ConstructorResolver {
 				 *   2. 构造方法参数列表是否已解析标志 constructorArgumentsResolved
 				 *   3. 参数值列表 resolvedConstructorArguments 或 preparedConstructorArguments
 				 *
-				 * 这些信息可用在其他地方，用于进行快捷判断
+				 *
 				 */
 				argsHolderToUse.storeCache(mbd, constructorToUse);
 			}

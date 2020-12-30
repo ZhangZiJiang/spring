@@ -61,6 +61,12 @@ import org.springframework.lang.Nullable;
  */
 public interface AutowireCapableBeanFactory extends BeanFactory {
 
+
+	/**
+	 * 这几个 AUTOWIRE 非常的有意思,
+	 * @Autowire 这个注解使用的是 AUTOWIRE_NO 这个类型的注入方式，就是不用任何的外部注入，直接可以实例化
+	 * 然后用这个类型中的根据这个实例化的对象的 类型 去寻找，
+	 */
 	/**
 	 * Constant that indicates no externally defined autowiring. Note that
 	 * BeanFactoryAware etc and annotation-driven injection will still be applied.

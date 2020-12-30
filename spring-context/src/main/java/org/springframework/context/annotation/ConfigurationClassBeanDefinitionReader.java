@@ -146,9 +146,15 @@ class ConfigurationClassBeanDefinitionReader {
 			return;
 		}
 
+		//如果是import 会被spring标志
+		//早这里完成注册
 		if (configClass.isImported()) {
 			registerBeanDefinitionForImportedConfigurationClass(configClass);
 		}
+
+		/**
+		 * @Bean  的处理
+		 */
 		for (BeanMethod beanMethod : configClass.getBeanMethods()) {
 			loadBeanDefinitionsForBeanMethod(beanMethod);
 		}
@@ -234,8 +240,13 @@ class ConfigurationClassBeanDefinitionReader {
 			beanDef.setUniqueFactoryMethodName(methodName);
 		}
 		else {
+			/**
+			 * 实例化@Bean method
+			 * 对 static 和不带 static分别处理标记在属性中，他是两个属性，所以static和不带static会 实例化 两次
+			 */
 			// instance @Bean method
 			beanDef.setFactoryBeanName(configClass.getBeanName());
+			// instance @Bean method 不带 static
 			beanDef.setUniqueFactoryMethodName(methodName);
 		}
 

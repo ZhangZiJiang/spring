@@ -13,9 +13,6 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
  */
 public class TestIOC {
 
-	@Autowired
-	private StudentDTO studentDTO;
-
 	public static void main(String[] args) {
 //		ApplicationContext applicationContext = new ClassPathXmlApplicationContext("beans.xml");
 //
@@ -25,11 +22,11 @@ public class TestIOC {
 
 
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
-		StudentDTO studentDTO1 = (StudentDTO) context.getBean("studentDTO");
-		studentDTO1.setName("2323");
-		System.out.println("studentDTO1: " + studentDTO1);
-		StudentDTO studentDTO2 = (StudentDTO) context.getBean("studentDTO");
-		System.out.println("studentDTO2: " + studentDTO2);
+//		StudentDTO studentDTO1 = (StudentDTO) context.getBean("studentDTO");
+//		studentDTO1.setName("2323");
+//		System.out.println("studentDTO1: " + studentDTO1);
+//		StudentDTO studentDTO2 = (StudentDTO) context.getBean("studentDTO");
+//		System.out.println("studentDTO2: " + studentDTO2);
 
 
 //		StudentDTO student = (StudentDTO) context.getBean("studentDTO");

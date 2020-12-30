@@ -210,6 +210,11 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 		//TODO 什么时候map.put的
 		Object singletonObject = this.singletonObjects.get(beanName);
 
+		/**
+		 * isSingletonCurrentlyInCreation -> singletonsCurrentlyInCreation set对象存放正在创建bean的对象，
+		 * 为什么使用set呢？
+		 * --因为set不可以重复
+		 */
 		if (singletonObject == null && isSingletonCurrentlyInCreation(beanName)) {
 			//如果为空，则锁定全局变量并进行处理
 			/**
@@ -264,6 +269,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 					logger.debug("Creating shared instance of singleton bean '" + beanName + "'");
 				}
 				//前置处理器
+				//记录正在创建的bean
 				beforeSingletonCreation(beanName);
 				boolean newSingleton = false;
 				boolean recordSuppressedExceptions = (this.suppressedExceptions == null);

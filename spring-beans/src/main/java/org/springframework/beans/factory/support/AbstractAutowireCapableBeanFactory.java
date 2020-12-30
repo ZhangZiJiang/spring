@@ -518,6 +518,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		// Prepare method overrides.
 		// 验证以及准备覆盖的方法
+		//准确的说 这里在处理 lookup-method 和 replace-method 配置，Spring 将这两个统称为Overrides()
 		try {
 			mbdToUse.prepareMethodOverrides();
 		}
@@ -639,8 +640,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			 * 对 bean 进行填充，将各个属性值注入，其中可能存在依赖于其他bean的属性，则会递归初始依赖bean
 			 */
 			populateBean(beanName, mbd, instanceWrapper);
-			//调用初始化方法，比如init-method======这个注解暂时理解不了
+			//调用初始化方法，比如init-method======
 			// 这步我们的真实对象变成了代理对象
+			// 就是执行 bean 的声明周期回调中的 init 方法
 			exposedObject = initializeBean(beanName, exposedObject, mbd);
 		}
 		catch (Throwable ex) {
@@ -1227,6 +1229,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		// Shortcut when re-creating the same bean...
+		/**
+		 * 防止 二次实例化 FactoryMethod() 方法了
+		 */
 		boolean resolved = false;
 		boolean autowireNecessary = false;
 		if (args == null) {
@@ -1247,6 +1252,12 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		// Candidate constructors for autowiring?
+		/**
+		 * 找到非默认的构造函数
+		 * AUTOWIRE_CONSTRUCTOR 这个是
+		 *
+		 * determineConstructorsFromBeanPostProcessors： 从Bean后处理器确定构造函数
+		 */
 		Constructor<?>[] ctors = determineConstructorsFromBeanPostProcessors(beanClass, beanName);
 		if (ctors != null || mbd.getResolvedAutowireMode() == AUTOWIRE_CONSTRUCTOR ||
 				mbd.hasConstructorArgumentValues() || !ObjectUtils.isEmpty(args)) {
@@ -1254,6 +1265,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		// Preferred constructors for default construction?
+		// 默认构造的首选构造函数
 		ctors = mbd.getPreferredConstructors();
 		if (ctors != null) {
 			return autowireConstructor(beanName, mbd, ctors, null);
@@ -1355,6 +1367,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 						getAccessControlContext());
 			}
 			else {
+				/**
+				 * 默认情况下是得到一个反射的实例化策略
+				 */
 				beanInstance = getInstantiationStrategy().instantiate(mbd, beanName, this);
 			}
 			BeanWrapper bw = new BeanWrapperImpl(beanInstance);
